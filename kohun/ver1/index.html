@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>古墳ガチャ</title>
+    <link rel="shortcut icon" href="kohun.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <table>
+        <tr>
+            <th class="midasi">古墳ガチャ</th>
+        </tr>
+        <tr>
+            <td class="version">Ver 2.0</td>
+        </tr>
+    </table>
+    <br />
+    <input type="button" value="単発ガチャ" onclick="gacha1Func()" />
+    <input type="button" value="10連ガチャ" onclick="gacha10Func()" />
+    <br />
+    <div class='resClass'>
+        <div class="L"> ガチャリザルト...</div>
+        <div id="result"></div>
+        <table id="result10">
+        </table>
+        <div id="tweetBtn" class="L"></div>
+    </div>
+    <br />
+    <h3 class="L">　Note : </h3>
+    <ul class="L">
+        <li>41の古墳たちが登場します。</li>
+        <li>ガチャに登場する古墳のデータは<a href="https://www.city.sakai.lg.jp/kanko/rekishi/dkofun/ranking/zenkoku.html"
+                target="_blank">古墳の大きさランキング（日本全国版）</a>を参考にしました。
+        </li>
+        <li>どの古墳も素晴らしく、優劣をつけるべきでないものです。したがってSSRやSRなどの格付けをしません。</li>
+        <li>これは暇な時に作った個人の制作物です。ですから打ち間違いや誤植があるかもしれません。</li>
+        <li>Ver 2.0の更新内容<ul>
+                <li>10連ガチャの実装</li>
+                <li>フォントを"Noto Sans JP"に</li>
+                <li>そもそも一から作り直した</li>
+            </ul>
+        </li>
+        <li>最終更新日 : 2019/07/25（金）</li>
+    </ul>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
