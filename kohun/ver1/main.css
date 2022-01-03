@@ -1,0 +1,30 @@
+body {
+    background-color: rgb(200, 252, 200);
+    text-align: center;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+.midasi {
+    width: 350px;
+    font-size: 2.5em;
+}
+
+.version {
+    text-align: right;
+}
+
+.L {
+    text-align: left;
+}
+
+.resClass {
+    margin: 10px;
+    padding: 10px;
+    background-color: white;
+    border: 5px solid;
+    border-radius: 5px;
+}
+
+table {
+    margin: auto;
+}
