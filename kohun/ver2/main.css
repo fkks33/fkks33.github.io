@@ -1,0 +1,17 @@
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+.main {
+    background-color: black;
+}
+
+.btnArea {
+    text-align: center;
+    padding: 5px;
+}
+
+#display {
+    padding: 10px;
+    color: white;
+}
