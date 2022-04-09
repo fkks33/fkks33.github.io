@@ -10,33 +10,34 @@
 
 <body>
     <h1>実験中</h1>
+    <div class="version">ver 0.1</div>
 
-    <div class="nowInfo">
+    <div class="currentInfo">
         <table>
             <tr>
                 <td>現在時刻</td>
                 <td><div id="currentTimeDisplay"></div></td>
             </tr>
             <tr>
-                <td>ダイヤ</td>
+                <td>パターン</td>
                 <td>平日ダイヤ</td>
             </tr>
         </table>
     </div>
 
-    <div class="busInfo_Omiya">
-        <h2>大宮便</h2>
+    <div class="busInfo_Seta">
+        <h2>瀬田便</h2>
         <table>
             <tr>
-                <th>深草→大宮</th>
+                <th>深草→瀬田</th>
             </tr>
             <tr>
                 <td>次のバス</td>
-                <td>hhmmss</td>
+                <td id="fsNextDisplay"></td>
             </tr>
             <tr>
                 <td>発車まで</td>
-                <td><div id="test"></div></td>
+                <td><div id="fsRemainDisplay"></div></td>
             </tr>
         </table>
     </div>
