@@ -132,7 +132,6 @@ const saturday = function() {
 //main
 let d = new Date();
 let day = d.getDay(); //曜日
-day = 2;
 switch (day) {
     case 0:
         //日曜日
@@ -140,7 +139,7 @@ switch (day) {
         break;
     case 3:
         //水曜日
-        pattern("平日ダイヤ");
+        pattern("平日ダイヤ（水）");
         wed_fo = dia_fo_1;
         wed_fo.unshift(525);
         diaCheck(wed_fo); 
