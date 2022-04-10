@@ -9,18 +9,40 @@
 </head>
 
 <body>
-    <h1>実験中</h1>
-    <div class="version">ver 0.1</div>
+    <h1></h1>
 
-    <div class="currentInfo">
+    <div class="status">
         <table>
             <tr>
-                <td>現在時刻</td>
-                <td><div id="currentTimeDisplay"></div></td>
+                <td><div id="diaPattern"></div></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="busInfo_Omiya">
+        <h2>大宮便</h2>
+        <table>
+            <tr>
+                <th>深草→大宮</th>
             </tr>
             <tr>
-                <td>パターン</td>
-                <td>平日ダイヤ</td>
+                <td>次のバス</td>
+                <td><div id="foNext"></div></td>
+            </tr>
+            <tr>
+                <td>発車まで</td>
+                <td><div id="foRemain"></div></td>
+            </tr>
+            <tr>
+                <th>大宮→深草</th>
+            </tr>
+            <tr>
+                <td>次のバス</td>
+                <td><div id="ofNext"></div></td>
+            </tr>
+            <tr>
+                <td>発車まで</td>
+                <td><div id="ofRemain"></div></td>
             </tr>
         </table>
     </div>
@@ -33,15 +55,26 @@
             </tr>
             <tr>
                 <td>次のバス</td>
-                <td id="fsNextDisplay"></td>
+                <td><div id="fsNext"></div></td>
             </tr>
             <tr>
                 <td>発車まで</td>
-                <td><div id="fsRemainDisplay"></div></td>
+                <td><div id="fsRemain"></div></td>
+            </tr>
+            <tr>
+                <th>瀬田→深草</th>
+            </tr>
+            <tr>
+                <td>次のバス</td>
+                <td><div id="sfNext"></div></td>
+            </tr>
+            <tr>
+                <td>発車まで</td>
+                <td><div id="sfRemain"></div></td>
             </tr>
         </table>
     </div>
-
+    
     <script src="main.js"></script>
 </body>
 
