@@ -3,78 +3,171 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>test</title>
+    <title>スクールバス発車標v2</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
-    <h1>実験中</h1>
+    <h1>スクールバス発車標v2</h1>
 
     <div class="status">
         <table>
             <tr>
-                <td><div id="diaPattern"></div></td>
+                <td>現在時刻</td>
+                <td><div id="currentTimeDiv"></div></td>
+            </tr>
+            <tr>
+                <td>パターン</td>
+                <td><div id="pattern"></div></td>
             </tr>
         </table>
     </div>
 
-    <div class="busInfo_Omiya">
-        <h2>大宮便</h2>
-        <table>
-            <tr>
-                <th>深草→大宮</th>
-            </tr>
-            <tr>
-                <td>次のバス</td>
-                <td><div id="foNext"></div></td>
-            </tr>
-            <tr>
-                <td>発車まで</td>
-                <td><div id="foRemain"></div></td>
-            </tr>
-            <tr>
-                <th>大宮→深草</th>
-            </tr>
-            <tr>
-                <td>次のバス</td>
-                <td><div id="ofNext"></div></td>
-            </tr>
-            <tr>
-                <td>発車まで</td>
-                <td><div id="ofRemain"></div></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="busInfo_Seta">
-        <h2>瀬田便</h2>
-        <table>
-            <tr>
-                <th>深草→瀬田</th>
-            </tr>
-            <tr>
-                <td>次のバス</td>
-                <td><div id="fsNext"></div></td>
-            </tr>
-            <tr>
-                <td>発車まで</td>
-                <td><div id="fsRemain"></div></td>
-            </tr>
-            <tr>
-                <th>瀬田→深草</th>
-            </tr>
-            <tr>
-                <td>次のバス</td>
-                <td><div id="sfNext"></div></td>
-            </tr>
-            <tr>
-                <td>発車まで</td>
-                <td><div id="sfRemain"></div></td>
-            </tr>
-        </table>
-    </div>
+    <h2>大宮便</h2>
     
+    <div class="busInfo_FukaOmiya">
+        <table>
+            <th>深草→大宮</th>
+        </table>
+        <table>
+            <tr>
+                <td rowspan="2"><div class="order">先　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="FukaOmiya_1st_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="FukaOmiya_1st_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="FukaOmiya_2nd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="FukaOmiya_2nd_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次々発</div></td>
+                <td>発車時刻</td>
+                <td><div id="FukaOmiya_3rd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="FukaOmiya_3rd_Remain"></div></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="busInfo_OmiyaFuka">
+        <table>
+            <th>大宮→深草</th>
+        </table>
+        <table>
+            <tr>
+                <td rowspan="2"><div class="order">先　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="OmiyaFuka_1st_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="OmiyaFuka_1st_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="OmiyaFuka_2nd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="OmiyaFuka_2nd_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次々発</div></td>
+                <td>発車時刻</td>
+                <td><div id="OmiyaFuka_3rd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="OmiyaFuka_3rd_Remain"></div></td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>瀬田便</h2>
+
+    <div class="busInfo_FukaSeta">
+        <table>
+            <th>深草→瀬田</th>
+        </table>
+        <table>
+            <tr>
+                <td rowspan="2"><div class="order">先　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="FukaSeta_1st_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="FukaSeta_1st_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="FukaSeta_2nd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="FukaSeta_2nd_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次々発</div></td>
+                <td>発車時刻</td>
+                <td><div id="FukaSeta_3rd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="FukaSeta_3rd_Remain"></div></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="busInfo_SetaFuka">
+        <table>
+            <th>瀬田→深草</th>
+        </table>
+        <table>
+            <tr>
+                <td rowspan="2"><div class="order">先　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="SetaFuka_1st_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="SetaFuka_1st_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次　発</div></td>
+                <td>発車時刻</td>
+                <td><div id="SetaFuka_2nd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="SetaFuka_2nd_Remain"></div></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><div class="order">次々発</div></td>
+                <td>発車時刻</td>
+                <td><div id="SetaFuka_3rd_Departure"></div></td>
+            </tr>
+            <tr>
+                <td>残　り　</td>
+                <td><div id="SetaFuka_3rd_Remain"></div></td>
+            </tr>
+        </table>
+    </div>
+
     <script src="main.js"></script>
 </body>
 
