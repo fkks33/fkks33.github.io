@@ -51,39 +51,40 @@ function hhmmss(sec) {
 
 //引数は（現在時刻（秒）, 基準ダイヤ, 発順（0が先発で））
 function getNext(now, dia, order) {
-    let msg;
-    //現在時刻を分に変換
+    let str = "";
+    //現在時刻を分に（秒は切り捨て）
     let h = now / 3600;
     h = Math.floor(h);
     let m = (now - 3600 * h) / 60;
     m = Math.floor(m);
-    let t = 60 * h + m;
-    //現在時刻をダイヤと照らし合わせ
+    t = h * 60 + m;
     for(let i = 0; i < dia.length; i++) {
-        if(i + order < dia.length && t < dia[i]) { //配列の外を参照しないようにチェック
-            let h2 = dia[i + order] / 60;
-            h2 = Math.floor(h2);
-            h2 = addZero(h2);
-            let m2 = dia[i + order] - h2 * 60;
-            m2 = addZero(m2);
-            msg = `${h2} : ${m2}`;
+        //参照するものが配列を超えていないか
+        if(i + order >= dia.length) {
             break;
-        } else {
-            if(i + order < dia.length) {
-                msg = "☆本日の運転は終了しました☆";
-            } else {
-                msg = "";
-            }
+        }
+        if(t < dia[i]) {
+            //発車時刻
+            let dep_t = dia[i + order];
+            let dep_h = dep_t / 60;
+            dep_h = Math.floor(dep_h);
+            let dep_m = dep_t - dep_h * 60;
+            dep_m = addZero(dep_m);
+            str = `${dep_h} : ${dep_m}`;
             break;
         }
     }
-    return msg;
+    return str;
 }
 
 function getRemain(now, dia, order) {
-    let str;
+    let str = "";
     for(let i = 0; i < dia.length; i++) {
-        if(i + order < dia.length && now / 60 < dia[i]) {
+        //参照できるか
+        if(i + order >= dia.length) {
+            break;
+        }
+        if(now < dia[i] * 60) {
             let t = dia[i + order] * 60 - now;
             let h = t / 3600;
             h = Math.floor(h);
@@ -92,15 +93,19 @@ function getRemain(now, dia, order) {
             let s = t - 3600 * h - 60 * m;
             str = `${h}h ${m}m ${s}s`;
             break;
-        } else {
-            str = "";
-            break;
         }
     }
     return str;
 }
 
 //繰り返す動作
+const sunday = function() {
+    currentTime = getCurrentTime();
+    write("currentTimeDiv", hhmmss(currentTime));
+    //日曜日はテスト用
+    console.log("Hello world");
+}
+
 const weekday = function() {
     currentTime = getCurrentTime();
     write("currentTimeDiv", hhmmss(currentTime));
@@ -208,6 +213,7 @@ switch (day) {
     case 0:
         //日曜日
         write("pattern", "日曜日（運休）");
+        setInterval(sunday, 1000);
         break;
     case 3:
         //水曜日
