@@ -52,7 +52,7 @@
 
     let countdown;
     let isWorking = true;
-    let remainingSeconds = 1 * 60; // 11 minutes in seconds
+    let remainingSeconds = 25 * 60; // 25 minutes in seconds
 
     function updateTimerDisplay(seconds) {
       const minutes = Math.floor(seconds / 60);
@@ -82,10 +82,10 @@
 
         if (isWorking) {
           statusText.textContent = '休憩中';
-          remainingSeconds = 1 * 60; // 22 minutes in seconds
+          remainingSeconds = 5 * 60; // 5 minutes in seconds
         } else {
           statusText.textContent = '仕事中';
-          remainingSeconds = 1 * 60; // 11 minutes in seconds
+          remainingSeconds = 25 * 60; // 25 minutes in seconds
         }
 
         isWorking = !isWorking;
