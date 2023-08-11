@@ -95,6 +95,9 @@
 
     startPauseButton.addEventListener('click', toggleTimer);
     updateTimerDisplay(remainingSeconds);
+
+    const wakeLock = await navigator.wakeLock.request('screen');
+    console.log('Wake lock activated');
   </script>
 </body>
 </html>
