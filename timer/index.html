@@ -11,8 +11,8 @@
       height: 100vh;
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: black; /* Set background color to black */
-      color: white; /* Set text color to white */
+      background-color: black; /* 背景色を黒に設定 */
+      color: white; /* 文字色を白に設定 */
     }
 
     .timer-container {
@@ -53,6 +53,26 @@
     let countdown;
     let isWorking = true;
     let remainingSeconds = 25 * 60; // 25 minutes in seconds
+    let wakeLock = null;
+
+    async function requestWakeLock() {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+      } catch (error) {
+        console.error('Could not request wake lock:', error);
+      }
+    }
+
+    async function releaseWakeLock() {
+      try {
+        if (wakeLock !== null) {
+          await wakeLock.release();
+          wakeLock = null;
+        }
+      } catch (error) {
+        console.error('Could not release wake lock:', error);
+      }
+    }
 
     function updateTimerDisplay(seconds) {
       const minutes = Math.floor(seconds / 60);
@@ -65,9 +85,11 @@
       if (countdown) {
         clearInterval(countdown);
         countdown = null;
+        releaseWakeLock(); // Release wake lock when stopping timer
         startPauseButton.textContent = 'スタート';
       } else {
         countdown = setInterval(updateCountdown, 1000);
+        requestWakeLock(); // Request wake lock when starting timer
         startPauseButton.textContent = '一時停止';
       }
     }
@@ -90,14 +112,12 @@
 
         isWorking = !isWorking;
         startPauseButton.textContent = 'スタート';
+        releaseWakeLock(); // Release wake lock when countdown finishes
       }
     }
 
     startPauseButton.addEventListener('click', toggleTimer);
     updateTimerDisplay(remainingSeconds);
-
-    const wakeLock = await navigator.wakeLock.request('screen');
-    console.log('Wake lock activated');
   </script>
 </body>
 </html>
