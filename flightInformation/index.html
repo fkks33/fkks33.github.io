@@ -13,6 +13,14 @@
             margin: 0;
             padding: 20px;
         }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 30px;
+        }
+
+        /* テーブル共通スタイル */
         #flight-board {
             width: 100%;
             max-width: 800px;
@@ -37,9 +45,73 @@
         tbody tr { background-color: #2a2a2a; }
         tbody tr:nth-child(even) { background-color: #3c3c3c; }
         tbody tr:hover { background-color: #555; }
+
+        /* カード表示用のスタイル */
+        .flight-card-container {
+            display: none; /* デフォルトでは非表示 */
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 10px;
+        }
+
+        .flight-card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* カード内の要素間のスペース */
+        }
+
+        .flight-card div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px dashed #3c3c3c;
+        }
+
+        .flight-card div:last-child {
+            border-bottom: none; /* 最後の要素の下線はなし */
+        }
+
+        .flight-card .label {
+            font-weight: bold;
+            color: #bbb;
+            flex-basis: 30%; /* ラベルの幅を調整 */
+            text-align: left;
+        }
+
+        .flight-card .value {
+            color: #f1f1f1;
+            flex-basis: 65%; /* 値の幅を調整 */
+            text-align: right;
+        }
+
+        /* レスポンシブ対応: 画面幅が768px以下の場合 */
+        @media (max-width: 768px) {
+            #flight-board {
+                display: none; /* テーブルを非表示 */
+            }
+            .flight-card-container {
+                display: block; /* カードコンテナを表示 */
+            }
+
+            body {
+                padding: 10px; /* 余白を少し小さく */
+            }
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
+    <h1>伊丹空港 出発便フライト情報</h1>
     
     <table id="flight-board">
         <thead>
@@ -47,18 +119,23 @@
                 <th>便名</th>
                 <th>行先</th>
                 <th>定刻</th>
-                <th>変更時刻</th> <th>搭乗口</th>
+                <th>変更時刻</th>
+                <th>搭乗口</th>
                 <th>備考</th>
             </tr>
         </thead>
-        <tbody id="flight-data">
+        <tbody id="flight-data-table">
         </tbody>
     </table>
 
+    <div id="flight-card-container" class="flight-card-container">
+        </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const apiUrl = 'http://api.aviationstack.com/v1/flights?access_key=2f2b359ffbeb4e3db8fe82ca90f64637&dep_iata=ITM';
-            const flightDataBody = document.getElementById('flight-data');
+            const apiUrl = 'https://api.aviationstack.com/v1/flights?access_key=2f2b359ffbeb4e3db8fe82ca90f64637&dep_iata=ITM';
+            const flightDataTableBody = document.getElementById('flight-data-table');
+            const flightCardContainer = document.getElementById('flight-card-container');
 
             fetch(apiUrl)
                 .then(response => {
@@ -70,8 +147,9 @@
                 .then(apiData => {
                     const flights = apiData.data;
                     if (!flights || flights.length === 0) {
-                        // 列が増えたのでcolspanを6に変更
-                        flightDataBody.innerHTML = '<tr><td colspan="6">現在、表示できるフライト情報がありません。</td></tr>';
+                        // テーブルとカードの両方に対応
+                        flightDataTableBody.innerHTML = '<tr><td colspan="6">現在、表示できるフライト情報がありません。</td></tr>';
+                        flightCardContainer.innerHTML = '<div class="flight-card"><div class="value">現在、表示できるフライト情報がありません。</div></div>';
                         return;
                     }
                     
@@ -92,30 +170,30 @@
                         const scheduledTime = new Date(flight.departure.scheduled)
                             .toLocaleTimeString('ja-JP', timeFormatOptions);
 
-                        // ★★★ 2. 変更時刻を計算するロジックを追加 ★★★
                         let changedTimeText = '---';
                         const delayMinutes = flight.departure.delay;
 
-                        // delayがnullでなく、かつ数値である場合のみ計算
                         if (delayMinutes && typeof delayMinutes === 'number') {
                             const scheduledDate = new Date(flight.departure.scheduled);
-                            // 元の時刻に遅延時間（分）を加算
                             scheduledDate.setMinutes(scheduledDate.getMinutes() + delayMinutes);
                             changedTimeText = scheduledDate.toLocaleTimeString('ja-JP', timeFormatOptions);
                         }
 
                         const remarksParts = [];
-                        if (flight.flight.codeshared !== null) {
+                        if (flight.flight.codeshared !== null && flight.flight.codeshared !== undefined) {
                             remarksParts.push('共同運行便');
                         }
-                        if (flight.flight_status === 'landed') {
-                            remarksParts.push('出発済み');
+                        // APIによっては`flight_status`が`scheduled`のままで、`actual_departure`があれば出発済みと判断できる場合がある
+                        if (flight.flight_status === 'departed' || flight.flight_status === 'landed') {
+                             remarksParts.push('出発済み');
+                        } else if (delayMinutes && typeof delayMinutes === 'number' && delayMinutes > 0) {
+                            remarksParts.push(`${delayMinutes}分遅延`);
                         }
                         const remarksText = remarksParts.join(' ') || '---';
 
-                        const row = document.createElement('tr');
-                        // ★★★ 3. 行データに変更時刻を追加 ★★★
-                        row.innerHTML = `
+                        // テーブル行の作成
+                        const tableRow = document.createElement('tr');
+                        tableRow.innerHTML = `
                             <td>${flightNumber}</td>
                             <td>${destination}</td>
                             <td>${scheduledTime}</td>
@@ -123,16 +201,29 @@
                             <td>${gate}</td>
                             <td>${remarksText}</td>
                         `;
-                        flightDataBody.appendChild(row);
+                        flightDataTableBody.appendChild(tableRow);
+
+                        // カードの作成
+                        const flightCard = document.createElement('div');
+                        flightCard.classList.add('flight-card');
+                        flightCard.innerHTML = `
+                            <div><span class="label">便名</span><span class="value">${flightNumber}</span></div>
+                            <div><span class="label">行先</span><span class="value">${destination}</span></div>
+                            <div><span class="label">定刻</span><span class="value">${scheduledTime}</span></div>
+                            <div><span class="label">変更時刻</span><span class="value">${changedTimeText}</span></div>
+                            <div><span class="label">搭乗口</span><span class="value">${gate}</span></div>
+                            <div><span class="label">備考</span><span class="value">${remarksText}</span></div>
+                        `;
+                        flightCardContainer.appendChild(flightCard);
                     });
                 })
                 .catch(error => {
                     console.error('データの取得に失敗しました:', error);
-                    // 列が増えたのでcolspanを6に変更
-                    flightDataBody.innerHTML = `<tr><td colspan="6">情報の取得中にエラーが発生しました。</td></tr>`;
+                    // テーブルとカードの両方に対応
+                    flightDataTableBody.innerHTML = `<tr><td colspan="6">情報の取得中にエラーが発生しました。</td></tr>`;
+                    flightCardContainer.innerHTML = '<div class="flight-card"><div class="value">情報の取得中にエラーが発生しました。</div></div>';
                 });
         });
     </script>
-
 </body>
 </html>
