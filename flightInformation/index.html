@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>伊丹空港 出発便フライト情報</title>
+    <title>出発便フライト情報</title>
     
     <style>
         body {
@@ -17,8 +17,38 @@
         h1 {
             text-align: center;
             color: #ffffff;
+            margin-bottom: 20px;
+        }
+        
+        /* === 追加 === */
+        #airport-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             margin-bottom: 30px;
         }
+
+        #airport-selector button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #f1f1f1;
+            background-color: #3c3c3c;
+            border: 1px solid #555;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #airport-selector button:hover {
+            background-color: #555;
+        }
+
+        #airport-selector button.active {
+            background-color: #007bff;
+            color: #ffffff;
+            border-color: #007bff;
+        }
+        /* === 追加ここまで === */
 
         /* テーブル共通スタイル */
         #flight-board {
@@ -48,7 +78,7 @@
 
         /* カード表示用のスタイル */
         .flight-card-container {
-            display: none; /* デフォルトでは非表示 */
+            display: none;
             max-width: 800px;
             margin: 20px auto;
             padding: 0 10px;
@@ -63,7 +93,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.4);
             display: flex;
             flex-direction: column;
-            gap: 8px; /* カード内の要素間のスペース */
+            gap: 8px;
         }
 
         .flight-card div {
@@ -75,33 +105,31 @@
         }
 
         .flight-card div:last-child {
-            border-bottom: none; /* 最後の要素の下線はなし */
+            border-bottom: none;
         }
 
         .flight-card .label {
             font-weight: bold;
             color: #bbb;
-            flex-basis: 30%; /* ラベルの幅を調整 */
+            flex-basis: 30%;
             text-align: left;
         }
 
         .flight-card .value {
             color: #f1f1f1;
-            flex-basis: 65%; /* 値の幅を調整 */
+            flex-basis: 65%;
             text-align: right;
         }
 
-        /* レスポンシブ対応: 画面幅が768px以下の場合 */
         @media (max-width: 768px) {
             #flight-board {
-                display: none; /* テーブルを非表示 */
+                display: none;
             }
             .flight-card-container {
-                display: block; /* カードコンテナを表示 */
+                display: block;
             }
-
             body {
-                padding: 10px; /* 余白を少し小さく */
+                padding: 10px;
             }
             h1 {
                 font-size: 1.5em;
@@ -111,8 +139,14 @@
     </style>
 </head>
 <body>
-    <h1>伊丹空港 出発便フライト情報</h1>
-    
+    <h1>出発便フライト情報</h1>
+
+    <div id="airport-selector">
+        <button data-iata="ITM" class="active">伊丹 (ITM)</button>
+        <button data-iata="HND">羽田 (HND)</button>
+        <button data-iata="KMJ">熊本 (KMJ)</button>
+    </div>
+
     <table id="flight-board">
         <thead>
             <tr>
@@ -129,100 +163,105 @@
     </table>
 
     <div id="flight-card-container" class="flight-card-container">
-        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const apiUrl = 'https://api.aviationstack.com/v1/flights?access_key=2f2b359ffbeb4e3db8fe82ca90f64637&dep_iata=ITM';
             const flightDataTableBody = document.getElementById('flight-data-table');
             const flightCardContainer = document.getElementById('flight-card-container');
+            const airportSelector = document.getElementById('airport-selector');
+            const buttons = airportSelector.querySelectorAll('button');
 
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('ネットワークの応答が正しくありませんでした。');
-                    }
-                    return response.json();
-                })
-                .then(apiData => {
-                    const flights = apiData.data;
-                    if (!flights || flights.length === 0) {
-                        // テーブルとカードの両方に対応
-                        flightDataTableBody.innerHTML = '<tr><td colspan="6">現在、表示できるフライト情報がありません。</td></tr>';
-                        flightCardContainer.innerHTML = '<div class="flight-card"><div class="value">現在、表示できるフライト情報がありません。</div></div>';
-                        return;
-                    }
-                    
-                    flights.sort((a, b) => new Date(a.departure.scheduled) - new Date(b.departure.scheduled));
+            // === 変更: フライト情報を取得して表示する関数 ===
+            const fetchAndDisplayFlights = (iataCode) => {
+                const ACCESS_KEY = '2f2b359ffbeb4e3db8fe82ca90f64637';
+                const apiUrl = `https://api.aviationstack.com/v1/flights?access_key=${ACCESS_KEY}&dep_iata=${iataCode}`;
+                
+                // 表示をクリアし、ローディングメッセージを表示
+                flightDataTableBody.innerHTML = '<tr><td colspan="6">読み込み中...</td></tr>';
+                flightCardContainer.innerHTML = '<div class="flight-card"><div class="value" style="text-align:center;">読み込み中...</div></div>';
 
-                    flights.forEach(flight => {
-                        const flightNumber = flight.flight.iata ?? '---';
-                        const destination = flight.arrival.airport ?? '---';
-                        const gate = flight.departure.gate ?? '---';
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('ネットワークの応答が正しくありませんでした。');
+                        }
+                        return response.json();
+                    })
+                    .then(apiData => {
+                        // クリア
+                        flightDataTableBody.innerHTML = '';
+                        flightCardContainer.innerHTML = '';
                         
-                        const timeFormatOptions = { 
-                            hour: '2-digit', 
-                            minute: '2-digit', 
-                            hour12: false, 
-                            timeZone: 'UTC'
-                        };
-
-                        const scheduledTime = new Date(flight.departure.scheduled)
-                            .toLocaleTimeString('ja-JP', timeFormatOptions);
-
-                        let changedTimeText = '---';
-                        const delayMinutes = flight.departure.delay;
-
-                        if (delayMinutes && typeof delayMinutes === 'number') {
-                            const scheduledDate = new Date(flight.departure.scheduled);
-                            scheduledDate.setMinutes(scheduledDate.getMinutes() + delayMinutes);
-                            changedTimeText = scheduledDate.toLocaleTimeString('ja-JP', timeFormatOptions);
+                        const flights = apiData.data;
+                        if (!flights || flights.length === 0) {
+                            flightDataTableBody.innerHTML = `<tr><td colspan="6">${iataCode}発のフライト情報がありません。</td></tr>`;
+                            flightCardContainer.innerHTML = `<div class="flight-card"><div class="value" style="text-align:center;">${iataCode}発のフライト情報がありません。</div></div>`;
+                            return;
                         }
+                        
+                        flights.sort((a, b) => new Date(a.departure.scheduled) - new Date(b.departure.scheduled));
 
-                        const remarksParts = [];
-                        if (flight.flight.codeshared !== null && flight.flight.codeshared !== undefined) {
-                            remarksParts.push('共同運行便');
-                        }
-                        // APIによっては`flight_status`が`scheduled`のままで、`actual_departure`があれば出発済みと判断できる場合がある
-                        if (flight.flight_status === 'departed' || flight.flight_status === 'landed') {
-                             remarksParts.push('出発済み');
-                        } else if (delayMinutes && typeof delayMinutes === 'number' && delayMinutes > 0) {
-                            remarksParts.push(`${delayMinutes}分遅延`);
-                        }
-                        const remarksText = remarksParts.join(' ') || '---';
+                        flights.forEach(flight => {
+                            // ... (データ処理部分は変更なし) ...
+                            const flightNumber = flight.flight.iata ?? '---';
+                            const destination = flight.arrival.airport ?? '---';
+                            const gate = flight.departure.gate ?? '---';
+                            const timeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' };
+                            const scheduledTime = new Date(flight.departure.scheduled).toLocaleTimeString('ja-JP', timeFormatOptions);
+                            let changedTimeText = '---';
+                            const delayMinutes = flight.departure.delay;
+                            if (delayMinutes && typeof delayMinutes === 'number') {
+                                const scheduledDate = new Date(flight.departure.scheduled);
+                                scheduledDate.setMinutes(scheduledDate.getMinutes() + delayMinutes);
+                                changedTimeText = scheduledDate.toLocaleTimeString('ja-JP', timeFormatOptions);
+                            }
+                            const remarksParts = [];
+                            if (flight.flight.codeshared !== null && flight.flight.codeshared !== undefined) {
+                                remarksParts.push('共同運行便');
+                            }
+                            if (flight.flight_status === 'departed' || flight.flight_status === 'landed') {
+                                 remarksParts.push('出発済み');
+                            } else if (delayMinutes && typeof delayMinutes === 'number' && delayMinutes > 0) {
+                                remarksParts.push(`${delayMinutes}分遅延`);
+                            }
+                            const remarksText = remarksParts.join(' ') || '---';
 
-                        // テーブル行の作成
-                        const tableRow = document.createElement('tr');
-                        tableRow.innerHTML = `
-                            <td>${flightNumber}</td>
-                            <td>${destination}</td>
-                            <td>${scheduledTime}</td>
-                            <td>${changedTimeText}</td>
-                            <td>${gate}</td>
-                            <td>${remarksText}</td>
-                        `;
-                        flightDataTableBody.appendChild(tableRow);
+                            // テーブル行の作成
+                            const tableRow = document.createElement('tr');
+                            tableRow.innerHTML = `<td>${flightNumber}</td><td>${destination}</td><td>${scheduledTime}</td><td>${changedTimeText}</td><td>${gate}</td><td>${remarksText}</td>`;
+                            flightDataTableBody.appendChild(tableRow);
 
-                        // カードの作成
-                        const flightCard = document.createElement('div');
-                        flightCard.classList.add('flight-card');
-                        flightCard.innerHTML = `
-                            <div><span class="label">便名</span><span class="value">${flightNumber}</span></div>
-                            <div><span class="label">行先</span><span class="value">${destination}</span></div>
-                            <div><span class="label">定刻</span><span class="value">${scheduledTime}</span></div>
-                            <div><span class="label">変更時刻</span><span class="value">${changedTimeText}</span></div>
-                            <div><span class="label">搭乗口</span><span class="value">${gate}</span></div>
-                            <div><span class="label">備考</span><span class="value">${remarksText}</span></div>
-                        `;
-                        flightCardContainer.appendChild(flightCard);
+                            // カードの作成
+                            const flightCard = document.createElement('div');
+                            flightCard.classList.add('flight-card');
+                            flightCard.innerHTML = `<div><span class="label">便名</span><span class="value">${flightNumber}</span></div><div><span class="label">行先</span><span class="value">${destination}</span></div><div><span class="label">定刻</span><span class="value">${scheduledTime}</span></div><div><span class="label">変更時刻</span><span class="value">${changedTimeText}</span></div><div><span class="label">搭乗口</span><span class="value">${gate}</span></div><div><span class="label">備考</span><span class="value">${remarksText}</span></div>`;
+                            flightCardContainer.appendChild(flightCard);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('データの取得に失敗しました:', error);
+                        flightDataTableBody.innerHTML = `<tr><td colspan="6">情報の取得中にエラーが発生しました。</td></tr>`;
+                        flightCardContainer.innerHTML = '<div class="flight-card"><div class="value" style="text-align:center;">情報の取得中にエラーが発生しました。</div></div>';
                     });
-                })
-                .catch(error => {
-                    console.error('データの取得に失敗しました:', error);
-                    // テーブルとカードの両方に対応
-                    flightDataTableBody.innerHTML = `<tr><td colspan="6">情報の取得中にエラーが発生しました。</td></tr>`;
-                    flightCardContainer.innerHTML = '<div class="flight-card"><div class="value">情報の取得中にエラーが発生しました。</div></div>';
+            };
+            
+            // === 追加: ボタンのクリックイベント ===
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 他のボタンから active クラスを削除
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    // クリックされたボタンに active クラスを追加
+                    button.classList.add('active');
+                    
+                    const iata = button.dataset.iata;
+                    fetchAndDisplayFlights(iata);
                 });
+            });
+
+            // === 変更: 初回読み込み ===
+            // 既定の空港(ITM)の情報を読み込む
+            fetchAndDisplayFlights('ITM');
         });
     </script>
 </body>
