@@ -14,41 +14,32 @@
             padding: 20px;
         }
 
-        h1 {
-            text-align: center;
-            color: #ffffff;
-            margin-bottom: 20px;
-        }
-        
-        /* === 追加 === */
-        #airport-selector {
+        /* === 修正: プルダウンメニューのスタイル === */
+        .select-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
             margin-bottom: 30px;
+            margin-top: 10px;
         }
 
-        #airport-selector button {
-            padding: 10px 20px;
+        #airport-select {
             font-size: 1em;
             color: #f1f1f1;
-            background-color: #3c3c3c;
+            background-color: #2a2a2a;
             border: 1px solid #555;
-            border-radius: 20px;
+            border-radius: 8px;
+            padding: 12px 15px;
+            -webkit-appearance: none; /* 標準のスタイルを無効化 */
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23f1f1f1%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: .65em auto;
+            min-width: 200px; /* 幅を確保 */
             cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
         }
-
-        #airport-selector button:hover {
-            background-color: #555;
-        }
-
-        #airport-selector button.active {
-            background-color: #007bff;
-            color: #ffffff;
-            border-color: #007bff;
-        }
-        /* === 追加ここまで === */
+        /* === 修正ここまで === */
 
         /* テーブル共通スタイル */
         #flight-board {
@@ -131,20 +122,17 @@
             body {
                 padding: 10px;
             }
-            h1 {
-                font-size: 1.5em;
-                margin-bottom: 20px;
-            }
         }
     </style>
 </head>
 <body>
-    <h1>出発便フライト情報</h1>
-
-    <div id="airport-selector">
-        <button data-iata="ITM" class="active">伊丹 (ITM)</button>
-        <button data-iata="HND">羽田 (HND)</button>
-        <button data-iata="KMJ">熊本 (KMJ)</button>
+    
+    <div class="select-container">
+        <select id="airport-select">
+            <option value="ITM" selected>伊丹空港 (ITM)</option>
+            <option value="HND">羽田空港 (HND)</option>
+            <option value="KMJ">熊本空港 (KMJ)</option>
+        </select>
     </div>
 
     <table id="flight-board">
@@ -169,41 +157,37 @@
         document.addEventListener('DOMContentLoaded', () => {
             const flightDataTableBody = document.getElementById('flight-data-table');
             const flightCardContainer = document.getElementById('flight-card-container');
-            const airportSelector = document.getElementById('airport-selector');
-            const buttons = airportSelector.querySelectorAll('button');
+            // === 修正: プルダウン要素を取得 ===
+            const airportSelect = document.getElementById('airport-select');
 
-            // === 変更: フライト情報を取得して表示する関数 ===
             const fetchAndDisplayFlights = (iataCode) => {
                 const ACCESS_KEY = '2f2b359ffbeb4e3db8fe82ca90f64637';
                 const apiUrl = `https://api.aviationstack.com/v1/flights?access_key=${ACCESS_KEY}&dep_iata=${iataCode}`;
                 
-                // 表示をクリアし、ローディングメッセージを表示
                 flightDataTableBody.innerHTML = '<tr><td colspan="6">読み込み中...</td></tr>';
                 flightCardContainer.innerHTML = '<div class="flight-card"><div class="value" style="text-align:center;">読み込み中...</div></div>';
 
                 fetch(apiUrl)
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error('ネットワークの応答が正しくありませんでした。');
-                        }
+                        if (!response.ok) throw new Error('ネットワークの応答が正しくありませんでした。');
                         return response.json();
                     })
                     .then(apiData => {
-                        // クリア
                         flightDataTableBody.innerHTML = '';
                         flightCardContainer.innerHTML = '';
                         
-                        const flights = apiData.data;
+                        // === 修正: 共同運行便(codesharedがnullでないもの)を除外 ===
+                        const flights = apiData.data.filter(flight => flight.flight.codeshared === null);
+
                         if (!flights || flights.length === 0) {
-                            flightDataTableBody.innerHTML = `<tr><td colspan="6">${iataCode}発のフライト情報がありません。</td></tr>`;
-                            flightCardContainer.innerHTML = `<div class="flight-card"><div class="value" style="text-align:center;">${iataCode}発のフライト情報がありません。</div></div>`;
+                            flightDataTableBody.innerHTML = `<tr><td colspan="6">${iataCode}発のフライト情報(共同運行便を除く)がありません。</td></tr>`;
+                            flightCardContainer.innerHTML = `<div class="flight-card"><div class="value" style="text-align:center;">${iataCode}発のフライト情報(共同運行便を除く)がありません。</div></div>`;
                             return;
                         }
                         
                         flights.sort((a, b) => new Date(a.departure.scheduled) - new Date(b.departure.scheduled));
 
                         flights.forEach(flight => {
-                            // ... (データ処理部分は変更なし) ...
                             const flightNumber = flight.flight.iata ?? '---';
                             const destination = flight.arrival.airport ?? '---';
                             const gate = flight.departure.gate ?? '---';
@@ -216,10 +200,9 @@
                                 scheduledDate.setMinutes(scheduledDate.getMinutes() + delayMinutes);
                                 changedTimeText = scheduledDate.toLocaleTimeString('ja-JP', timeFormatOptions);
                             }
+                            
+                            // === 修正: 備考欄のロジックを簡略化 ===
                             const remarksParts = [];
-                            if (flight.flight.codeshared !== null && flight.flight.codeshared !== undefined) {
-                                remarksParts.push('共同運行便');
-                            }
                             if (flight.flight_status === 'departed' || flight.flight_status === 'landed') {
                                  remarksParts.push('出発済み');
                             } else if (delayMinutes && typeof delayMinutes === 'number' && delayMinutes > 0) {
@@ -227,12 +210,10 @@
                             }
                             const remarksText = remarksParts.join(' ') || '---';
 
-                            // テーブル行の作成
                             const tableRow = document.createElement('tr');
                             tableRow.innerHTML = `<td>${flightNumber}</td><td>${destination}</td><td>${scheduledTime}</td><td>${changedTimeText}</td><td>${gate}</td><td>${remarksText}</td>`;
                             flightDataTableBody.appendChild(tableRow);
 
-                            // カードの作成
                             const flightCard = document.createElement('div');
                             flightCard.classList.add('flight-card');
                             flightCard.innerHTML = `<div><span class="label">便名</span><span class="value">${flightNumber}</span></div><div><span class="label">行先</span><span class="value">${destination}</span></div><div><span class="label">定刻</span><span class="value">${scheduledTime}</span></div><div><span class="label">変更時刻</span><span class="value">${changedTimeText}</span></div><div><span class="label">搭乗口</span><span class="value">${gate}</span></div><div><span class="label">備考</span><span class="value">${remarksText}</span></div>`;
@@ -246,22 +227,13 @@
                     });
             };
             
-            // === 追加: ボタンのクリックイベント ===
-            buttons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // 他のボタンから active クラスを削除
-                    buttons.forEach(btn => btn.classList.remove('active'));
-                    // クリックされたボタンに active クラスを追加
-                    button.classList.add('active');
-                    
-                    const iata = button.dataset.iata;
-                    fetchAndDisplayFlights(iata);
-                });
+            // === 修正: プルダウンの変更イベント ===
+            airportSelect.addEventListener('change', () => {
+                fetchAndDisplayFlights(airportSelect.value);
             });
 
-            // === 変更: 初回読み込み ===
-            // 既定の空港(ITM)の情報を読み込む
-            fetchAndDisplayFlights('ITM');
+            // 初回読み込み (既定の空港)
+            fetchAndDisplayFlights(airportSelect.value);
         });
     </script>
 </body>
