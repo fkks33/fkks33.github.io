@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シンプル日記アプリ (マテリアルデザイン版)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        /* --- CSS --- */
+        
+        /* ▼追加: マテリアルデザイン カラーとフォントの変数定義 */
+        :root {
+            --md-primary-color: #3f51b5; /* (Indigo) */
+            --md-primary-dark: #303f9f;
+            --md-accent-color: #ff4081; /* (Pink A200) */
+            --md-background-color: #f5f5f5;
+            --md-surface-color: #ffffff;
+            --md-text-primary: #212121;
+            --md-text-secondary: #757575;
+            --md-divider-color: #e0e0e0;
+            
+            font-family: 'Roboto', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+        }
+
+        body {
+            background-color: var(--md-background-color);
+            margin: 0;
+            padding: 20px; /* PC表示時の上下余白 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 上寄せに変更 */
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .diary-container {
+            width: 100%;
+            max-width: 700px; /* PCでの最大幅 */
+            background-color: var(--md-surface-color);
+            border-radius: 8px; /* PC表示では角丸 */
+            box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 
+                        0 1px 10px 0 rgba(0,0,0,0.12), 
+                        0 2px 4px -1px rgba(0,0,0,0.20);
+            overflow: hidden;
+        }
+        
+        /* ▼追加: アプリバー(ヘッダー) */
+        .app-bar {
+            background-color: var(--md-primary-color);
+            color: white;
+            padding: 20px 24px;
+        }
+        .app-bar h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        /* ▼修正: タブのスタイル (Material Design) */
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid var(--md-divider-color);
+            background-color: var(--md-surface-color);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 16px 12px;
+            text-align: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--md-text-secondary);
+            position: relative;
+            text-transform: uppercase;
+        }
+
+        .tab-button:hover {
+            background-color: rgba(63, 81, 181, 0.05); /* プライマリ色の薄い背景 */
+        }
+
+        .tab-button.active {
+            color: var(--md-primary-color);
+        }
+        
+        /* アクティブなタブのインジケーター（下線） */
+        .tab-button::after {
+            content: '';
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--md-primary-color);
+            transform: scaleX(0); /* 通常時は非表示 */
+            transition: transform 0.3s ease;
+        }
+        
+        .tab-button.active::after {
+            transform: scaleX(1); /* アクティブ時のみ表示 */
+        }
+
+
+        /* タブコンテンツ */
+        .tab-content {
+            display: none; 
+            padding: 24px; /* マテリアルデザインの標準パディング */
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ▼修正: フォーム (Material "Outlined" style) */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        /* ラベルを入力欄の枠線上に配置 */
+        .form-group label {
+            position: absolute;
+            top: 16px;
+            left: 14px;
+            font-size: 16px;
+            color: var(--md-text-secondary);
+            background-color: var(--md-surface-color);
+            padding: 0 4px;
+            transition: all 0.2s ease;
+            pointer-events: none; /* ラベルをクリックしても入力欄がフォーカスされるように */
+        }
+
+        .form-group input[type="date"],
+        .form-group input[type="search"],
+        .form-group textarea {
+            width: 100%;
+            padding: 16px 14px;
+            border: 1px solid var(--md-divider-color);
+            border-radius: 4px;
+            box-sizing: border-box; 
+            font-size: 16px;
+            background-color: transparent;
+        }
+        
+        .form-group textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+        
+        /* フォーカス時、または入力がある場合 */
+        .form-group input:focus + label,
+        .form-group textarea:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group textarea:not(:placeholder-shown) + label {
+            top: -8px; /* ラベルを上に移動 */
+            font-size: 12px;
+            color: var(--md-primary-color);
+        }
+        
+        /* 日付入力は常にラベルが上 */
+        .form-group input[type="date"] + label {
+            top: -8px;
+            font-size: 12px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--md-primary-color);
+            border-width: 2px;
+            padding: 15px 13px; /* 枠線が太る分パディングを調整 */
+        }
+
+        /* ▼修正: 保存ボタン (Material "Contained" button) */
+        .save-button {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--md-primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 
+                        0 3px 1px -2px rgba(0,0,0,0.12), 
+                        0 1px 5px 0 rgba(0,0,0,0.20);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .save-button:hover {
+            background-color: var(--md-primary-dark);
+            box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 
+                        0 1px 10px 0 rgba(0,0,0,0.12), 
+                        0 2px 4px -1px rgba(0,0,0,0.20);
+        }
+
+        /* ▼修正: 振り返りタブ (Material "Card") */
+        #entriesList {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+        
+        .entry-item {
+            background-color: var(--md-surface-color);
+            border: 1px solid var(--md-divider-color);
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--md-divider-color);
+            padding-bottom: 8px;
+        }
+
+        .entry-header h3 {
+            margin: 0;
+            color: var(--md-text-primary);
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        /* ▼修正: アイコンボタン */
+        .entry-actions {
+            display: flex;
+        }
+        .entry-actions .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 24px;
+            margin-left: 8px;
+            color: var(--md-text-secondary);
+            border-radius: 50%; /* 円形 */
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        .entry-actions .icon-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .entry-actions .edit-btn i { color: var(--md-primary-color); }
+        .entry-actions .delete-btn i { color: var(--md-accent-color); }
+
+        .entry-item p {
+            margin: 0;
+            color: var(--md-text-secondary);
+            white-space: pre-wrap; 
+            line-height: 1.7;
+
+            /* 3行までに制限 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; 
+            -webkit-box-orient: vertical;
+            cursor: pointer; 
+        }
+
+        .entry-item p.expanded {
+            /* 3行制限を解除 */
+            display: block;
+            -webkit-line-clamp: unset;
+            overflow: visible;
+        }
+
+        /* ▼修正: トースト通知 (レスポンシブ対応) */
+        #toastNotification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px; /* PCでは右下 */
+            background-color: #333;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s, transform 0.5s;
+            transform: translateY(20px);
+            font-size: 14px;
+        }
+
+        #toastNotification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        #toastNotification.error {
+            background-color: #d32f2f; /* Material Error Color */
+        }
+        
+        /* ▼追加: レスポンシブ対応 (スマートフォン) */
+        @media (max-width: 600px) {
+            body {
+                padding: 0; /* スマホでは余白なし */
+            }
+
+            .diary-container {
+                border-radius: 0; /* 角丸なし */
+                box-shadow: none; /* 影なし */
+                min-height: 100vh;
+            }
+            
+            .tab-content {
+                padding: 16px; /* スマホではパディングを少し狭く */
+            }
+            
+            .app-bar {
+                padding: 16px;
+            }
+
+            /* トースト通知を画面下部中央に */
+            #toastNotification {
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(20px);
+                width: calc(100% - 40px);
+                box-sizing: border-box;
+                text-align: center;
+            }
+            
+            #toastNotification.show {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="diary-container">
+        
+        <div class="app-bar">
+            <h1>シンプル日記アプリ</h1>
+        </div>
+        
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showTab('record')">記録</button>
+            <button class="tab-button" onclick="showTab('review')">振り返り</button>
+        </div>
+
+        <div id="record" class="tab-content active">
+            <div class="form-group">
+                <input type="date" id="entryDate">
+                <label for="entryDate">日付</label>
+            </div>
+            <div class="form-group">
+                <textarea id="entryText" placeholder=" "></textarea> <label for="entryText">内容</label>
+            </div>
+            <button id="saveButton" class="save-button">記録する (または上書き保存)</button>
+        </div>
+
+        <div id="review" class="tab-content">
+            <div class="form-group">
+                <input type="search" id="searchInput" placeholder=" ">
+                <label for="searchInput">日記の内容を検索...</label>
+            </div>
+            <div id="entriesList">
+                </div>
+        </div>
+    </div>
+
+    <div id="toastNotification"></div>
+
+
+    <script>
+        // --- JavaScript (変更なし) ---
+        // (※loadEntries内のinnerHTMLのみ、アイコンボタン用に変更)
+
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const entryDate = document.getElementById('entryDate');
+        const entryText = document.getElementById('entryText');
+        const saveButton = document.getElementById('saveButton');
+        const entriesList = document.getElementById('entriesList');
+        const searchInput = document.getElementById('searchInput'); 
+        const toast = document.getElementById('toastNotification'); 
+
+        const STORAGE_KEY = 'diaryEntries';
+
+        // 1. タブ切り替え
+        function showTab(tabId) {
+            tabContents.forEach(content => content.classList.remove('active'));
+            tabButtons.forEach(button => button.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'record') {
+                tabButtons[0].classList.add('active');
+                loadEntryForDate();
+            } else {
+                tabButtons[1].classList.add('active');
+                loadEntries();
+            }
+        }
+
+        // 2. 記録
+        function saveEntry() {
+            try {
+                const date = entryDate.value;
+                const text = entryText.value;
+
+                if (!date || !text.trim()) {
+                    showToast('日付と内容の両方を入力してください。', 'error');
+                    return;
+                }
+
+                const entries = getEntriesFromStorage();
+                const existingEntryIndex = entries.findIndex(entry => entry.date === date);
+
+                if (existingEntryIndex > -1) {
+                    entries[existingEntryIndex].text = text;
+                } else {
+                    const newEntry = { date: date, text: text };
+                    entries.unshift(newEntry);
+                }
+                
+                entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+                
+                showToast('日記を記録しました！'); 
+            
+            } catch (error) {
+                console.error('保存に失敗しました:', error);
+                showToast('保存に失敗しました。容量がいっぱいかもしれません。', 'error');
+            }
+        }
+
+        // 3. 振り返り
+        function loadEntries() {
+            try {
+                const entries = getEntriesFromStorage();
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredEntries = entries.filter(entry => 
+                    entry.text.toLowerCase().includes(searchTerm)
+                );
+
+                entriesList.innerHTML = '';
+
+                if (filteredEntries.length === 0) {
+                    entriesList.innerHTML = searchTerm 
+                        ? '<p>検索結果に一致する記録がありません。</p>'
+                        : '<p>まだ記録がありません。</p>';
+                    return;
+                }
+
+                filteredEntries.forEach(entry => {
+                    const entryElement = document.createElement('div');
+                    entryElement.classList.add('entry-item');
+
+                    const entryDateObj = new Date(entry.date + 'T12:00:00'); 
+                    const formattedDate = entryDateObj.toLocaleDateString('ja-JP', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    // ▼修正: Material Icons を使うように変更
+                    entryElement.innerHTML = `
+                        <div class="entry-header">
+                            <h3>${formattedDate}</h3>
+                            <div class="entry-actions">
+                                <button class="icon-btn edit-btn" data-date="${entry.date}" title="編集">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="icon-btn delete-btn" data-date="${entry.date}" title="削除">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                        <p>${escapeHTML(entry.text)}</p>
+                    `;
+                    // ▲修正
+                    
+                    entriesList.appendChild(entryElement);
+                });
+
+            } catch (error) {
+                console.error('日記の読み込みに失敗しました:', error);
+                showToast('日記の読み込みに失敗しました。データが破損している可能性があります。', 'error');
+            }
+        }
+        
+        // 4. 記録タブのデータ読み込み
+        function loadEntryForDate() {
+            try {
+                const selectedDate = entryDate.value;
+                const entries = getEntriesFromStorage();
+                const foundEntry = entries.find(entry => entry.date === selectedDate);
+                
+                entryText.value = foundEntry ? foundEntry.text : '';
+                
+                // ▼追加: ラベルがtextareaと重ならないように
+                // (値があっても :not(:placeholder-shown) が効かない場合があるため)
+                const label = entryText.labels[0];
+                if (label) {
+                    if (entryText.value) {
+                        label.style.top = '-8px';
+                        label.style.fontSize = '12px';
+                    } else {
+                        // JSでのリセットは難しいので、CSSの :focus と :not(:placeholder-shown) に任せる
+                        label.style.top = '';
+                        label.style.fontSize = '';
+                    }
+                }
+
+            } catch (error) {
+                console.error('特定の日付のデータ読み込みに失敗しました:', error);
+                showToast('日記の読み込みに失敗しました。', 'error');
+            }
+        }
+
+        // 5. HTMLエスケープ
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(match) {
+                return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+                }[match];
+            });
+        }
+        
+        // 6. ストレージから安全に取得
+        function getEntriesFromStorage() {
+            try {
+                const entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                return entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } catch (error) {
+                console.error('ストレージの解析に失敗しました:', error);
+                localStorage.removeItem(STORAGE_KEY); 
+                return [];
+            }
+        }
+        
+        // 7. 削除
+        function deleteEntry(date) {
+            if (!confirm('本当にこの日記を削除しますか？')) {
+                return;
+            }
+            
+            try {
+                let entries = getEntriesFromStorage();
+                entries = entries.filter(entry => entry.date !== date);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+                
+                showToast('日記を削除しました');
+                loadEntries(); 
+                loadEntryForDate(); 
+
+            } catch (error) {
+                console.error('削除に失敗しました:', error);
+                showToast('削除に失敗しました。', 'error');
+            }
+        }
+        
+        // 8. 編集（タブ誘導）
+        function startEditEntry(date) {
+            try {
+                const entries = getEntriesFromStorage();
+                const entryToEdit = entries.find(entry => entry.date === date);
+                
+                if (entryToEdit) {
+                    entryDate.value = entryToEdit.date;
+                    entryText.value = entryToEdit.text;
+                    showTab('record');
+                }
+            } catch (error) {
+                console.error('編集の準備に失敗しました:', error);
+                showToast('編集の準備に失敗しました。', 'error');
+            }
+        }
+
+        // 9. トースト通知
+        let toastTimer;
+        function showToast(message, type = 'success') {
+            clearTimeout(toastTimer);
+
+            toast.textContent = message;
+            toast.className = 'show'; 
+            
+            if (type === 'error') {
+                toast.classList.add('error');
+            }
+
+            toastTimer = setTimeout(() => {
+                toast.className = toast.className.replace('show', '');
+            }, 3000);
+        }
+
+        // 10. 初期化処理
+        
+        // イベント委任 (p, edit-btn, delete-btn)
+        entriesList.addEventListener('click', function(e) {
+            // クリックされた要素またはその親要素を探索
+            const pTag = e.target.closest('p');
+            const editBtn = e.target.closest('.edit-btn');
+            const deleteBtn = e.target.closest('.delete-btn');
+
+            if (pTag) {
+                pTag.classList.toggle('expanded');
+            }
+            if (editBtn) {
+                const date = editBtn.dataset.date;
+                startEditEntry(date);
+            }
+            if (deleteBtn) {
+                const date = deleteBtn.dataset.date;
+                deleteEntry(date);
+            }
+        });
+
+        saveButton.addEventListener('click', saveEntry);
+        entryDate.addEventListener('change', loadEntryForDate);
+        searchInput.addEventListener('input', loadEntries);
+
+        // 今日の日付(JST)を取得
+        function getToday_YYYYMMDD_JST() {
+            const now = new Date();
+            const tzOffset = now.getTimezoneOffset(); 
+            const jstOffsetMinutes = -540;
+            const diffMinutes = tzOffset - jstOffsetMinutes;
+            const jstDate = new Date(now.getTime() + diffMinutes * 60 * 1000);
+            
+            const y = jstDate.getFullYear();
+            const m = String(jstDate.getMonth() + 1).padStart(2, '0');
+            const d = String(jstDate.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+        
+        entryDate.value = getToday_YYYYMMDD_JST();
+        loadEntryForDate(); // ページ読み込み時に実行
+
+    </script>
+
+</body>
+</html>
