@@ -11,9 +11,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
-        /* --- CSS --- */
+        /* --- CSS (変更なし) --- */
         
-        /* ▼追加: マテリアルデザイン カラーとフォントの変数定義 */
         :root {
             --md-primary-color: #3f51b5; /* (Indigo) */
             --md-primary-dark: #303f9f;
@@ -30,26 +29,25 @@
         body {
             background-color: var(--md-background-color);
             margin: 0;
-            padding: 20px; /* PC表示時の上下余白 */
+            padding: 20px; 
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* 上寄せに変更 */
+            align-items: flex-start; 
             min-height: 100vh;
             box-sizing: border-box;
         }
 
         .diary-container {
             width: 100%;
-            max-width: 700px; /* PCでの最大幅 */
+            max-width: 700px; 
             background-color: var(--md-surface-color);
-            border-radius: 8px; /* PC表示では角丸 */
+            border-radius: 8px; 
             box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 
                         0 1px 10px 0 rgba(0,0,0,0.12), 
                         0 2px 4px -1px rgba(0,0,0,0.20);
             overflow: hidden;
         }
         
-        /* ▼追加: アプリバー(ヘッダー) */
         .app-bar {
             background-color: var(--md-primary-color);
             color: white;
@@ -61,7 +59,6 @@
             font-weight: 500;
         }
 
-        /* ▼修正: タブのスタイル (Material Design) */
         .tab-buttons {
             display: flex;
             border-bottom: 1px solid var(--md-divider-color);
@@ -83,14 +80,13 @@
         }
 
         .tab-button:hover {
-            background-color: rgba(63, 81, 181, 0.05); /* プライマリ色の薄い背景 */
+            background-color: rgba(63, 81, 181, 0.05); 
         }
 
         .tab-button.active {
             color: var(--md-primary-color);
         }
         
-        /* アクティブなタブのインジケーター（下線） */
         .tab-button::after {
             content: '';
             display: block;
@@ -100,19 +96,17 @@
             width: 100%;
             height: 2px;
             background-color: var(--md-primary-color);
-            transform: scaleX(0); /* 通常時は非表示 */
+            transform: scaleX(0); 
             transition: transform 0.3s ease;
         }
         
         .tab-button.active::after {
-            transform: scaleX(1); /* アクティブ時のみ表示 */
+            transform: scaleX(1); 
         }
 
-
-        /* タブコンテンツ */
         .tab-content {
             display: none; 
-            padding: 24px; /* マテリアルデザインの標準パディング */
+            padding: 24px; 
             animation: fadeIn 0.5s;
         }
 
@@ -125,13 +119,11 @@
             to { opacity: 1; }
         }
 
-        /* ▼修正: フォーム (Material "Outlined" style) */
         .form-group {
             margin-bottom: 24px;
             position: relative;
         }
 
-        /* ラベルを入力欄の枠線上に配置 */
         .form-group label {
             position: absolute;
             top: 16px;
@@ -141,7 +133,7 @@
             background-color: var(--md-surface-color);
             padding: 0 4px;
             transition: all 0.2s ease;
-            pointer-events: none; /* ラベルをクリックしても入力欄がフォーカスされるように */
+            pointer-events: none; 
         }
 
         .form-group input[type="date"],
@@ -161,17 +153,15 @@
             resize: vertical;
         }
         
-        /* フォーカス時、または入力がある場合 */
         .form-group input:focus + label,
         .form-group textarea:focus + label,
         .form-group input:not(:placeholder-shown) + label,
         .form-group textarea:not(:placeholder-shown) + label {
-            top: -8px; /* ラベルを上に移動 */
+            top: -8px; 
             font-size: 12px;
             color: var(--md-primary-color);
         }
         
-        /* 日付入力は常にラベルが上 */
         .form-group input[type="date"] + label {
             top: -8px;
             font-size: 12px;
@@ -182,10 +172,9 @@
             outline: none;
             border-color: var(--md-primary-color);
             border-width: 2px;
-            padding: 15px 13px; /* 枠線が太る分パディングを調整 */
+            padding: 15px 13px; 
         }
 
-        /* ▼修正: 保存ボタン (Material "Contained" button) */
         .save-button {
             width: 100%;
             padding: 12px 16px;
@@ -210,7 +199,6 @@
                         0 2px 4px -1px rgba(0,0,0,0.20);
         }
 
-        /* ▼修正: 振り返りタブ (Material "Card") */
         #entriesList {
             max-height: 500px;
             overflow-y: auto;
@@ -242,7 +230,6 @@
             font-weight: 500;
         }
         
-        /* ▼修正: アイコンボタン */
         .entry-actions {
             display: flex;
         }
@@ -254,7 +241,7 @@
             font-size: 24px;
             margin-left: 8px;
             color: var(--md-text-secondary);
-            border-radius: 50%; /* 円形 */
+            border-radius: 50%; 
             width: 40px;
             height: 40px;
             display: flex;
@@ -274,28 +261,14 @@
             color: var(--md-text-secondary);
             white-space: pre-wrap; 
             line-height: 1.7;
-
-            /* 3行までに制限 */
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3; 
-            -webkit-box-orient: vertical;
             cursor: pointer; 
         }
 
-        .entry-item p.expanded {
-            /* 3行制限を解除 */
-            display: block;
-            -webkit-line-clamp: unset;
-            overflow: visible;
-        }
-
-        /* ▼修正: トースト通知 (レスポンシブ対応) */
+        /* トースト通知 */
         #toastNotification {
             position: fixed;
             bottom: 20px;
-            right: 20px; /* PCでは右下 */
+            right: 20px; 
             background-color: #333;
             color: white;
             padding: 14px 20px;
@@ -316,30 +289,29 @@
         }
 
         #toastNotification.error {
-            background-color: #d32f2f; /* Material Error Color */
+            background-color: #d32f2f; 
         }
         
-        /* ▼追加: レスポンシブ対応 (スマートフォン) */
+        /* レスポンシブ対応 (スマートフォン) */
         @media (max-width: 600px) {
             body {
-                padding: 0; /* スマホでは余白なし */
+                padding: 0; 
             }
 
             .diary-container {
-                border-radius: 0; /* 角丸なし */
-                box-shadow: none; /* 影なし */
+                border-radius: 0; 
+                box-shadow: none; 
                 min-height: 100vh;
             }
             
             .tab-content {
-                padding: 16px; /* スマホではパディングを少し狭く */
+                padding: 16px; 
             }
             
             .app-bar {
                 padding: 16px;
             }
 
-            /* トースト通知を画面下部中央に */
             #toastNotification {
                 bottom: 20px;
                 left: 50%;
@@ -375,7 +347,8 @@
                 <label for="entryDate">日付</label>
             </div>
             <div class="form-group">
-                <textarea id="entryText" placeholder=" "></textarea> <label for="entryText">内容</label>
+                <textarea id="entryText" placeholder=" "></textarea> 
+                <label for="entryText">内容</label>
             </div>
             <button id="saveButton" class="save-button">記録する (または上書き保存)</button>
         </div>
@@ -385,18 +358,40 @@
                 <input type="search" id="searchInput" placeholder=" ">
                 <label for="searchInput">日記の内容を検索...</label>
             </div>
+            
             <div id="entriesList">
                 </div>
-        </div>
+            
+            <hr style="border: none; border-top: 1px solid var(--md-divider-color); margin: 24px 0;">
+            
+            <div class="export-section">
+                <h4 style="margin: 0 0 16px 0; font-weight: 500; color: var(--md-text-primary);">エクスポート (バックアップ用)</h4>
+                <p style="font-size: 14px; color: var(--md-text-secondary); margin: -8px 0 16px 0; line-height: 1.6;">
+                    データをJSON形式でクリップボードにコピーするか、ファイルとしてダウンロードします。<br>
+                    このデータを安全な場所に保存してください。
+                </p>
+                
+                <div class="export-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button id="copyExportButton" class="save-button" style="width: auto; padding: 10px 16px; background-color: var(--md-accent-color);">
+                        <i class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 4px;">content_copy</i>
+                        クリップボードにコピー
+                    </button>
+                    <button id="downloadExportButton" class="save-button" style="width: auto; padding: 10px 16px; background-color: var(--md-primary-dark);">
+                        <i class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 4px;">download</i>
+                        ファイルで保存
+                    </button>
+                </div>
+            </div>
+            </div>
     </div>
 
     <div id="toastNotification"></div>
 
 
     <script>
-        // --- JavaScript (変更なし) ---
-        // (※loadEntries内のinnerHTMLのみ、アイコンボタン用に変更)
+        // --- JavaScript ---
 
+        // 要素の取得
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
         const entryDate = document.getElementById('entryDate');
@@ -405,6 +400,11 @@
         const entriesList = document.getElementById('entriesList');
         const searchInput = document.getElementById('searchInput'); 
         const toast = document.getElementById('toastNotification'); 
+        
+        // ▼▼▼ エクスポート機能の要素取得（変更） ▼▼▼
+        const copyExportButton = document.getElementById('copyExportButton');
+        const downloadExportButton = document.getElementById('downloadExportButton');
+        // ▲▲▲ エクスポート機能の要素取得（変更） ▲▲▲
 
         const STORAGE_KEY = 'diaryEntries';
 
@@ -479,13 +479,20 @@
                     entryElement.classList.add('entry-item');
 
                     const entryDateObj = new Date(entry.date + 'T12:00:00'); 
+                    
+                    // ▼▼▼ 日付フォーマットに曜日を追加 ▼▼▼
                     const formattedDate = entryDateObj.toLocaleDateString('ja-JP', {
                         year: 'numeric',
                         month: 'long',
-                        day: 'numeric'
+                        day: 'numeric',
+                        weekday: 'short' // (木) などを追加
                     });
+                    // ▲▲▲ 日付フォーマットに曜日を追加 ▲▲▲
 
-                    // ▼修正: Material Icons を使うように変更
+                    const summaryText = getFirstSentence(entry.text);
+                    const fullText = escapeHTML(entry.text);
+                    const escapedSummary = escapeHTML(summaryText);
+
                     entryElement.innerHTML = `
                         <div class="entry-header">
                             <h3>${formattedDate}</h3>
@@ -498,9 +505,10 @@
                                 </button>
                             </div>
                         </div>
-                        <p>${escapeHTML(entry.text)}</p>
+                        <p data-summarytext="${escapedSummary}" data-fulltext="${fullText}">
+                            ${escapedSummary}
+                        </p>
                     `;
-                    // ▲修正
                     
                     entriesList.appendChild(entryElement);
                 });
@@ -520,15 +528,12 @@
                 
                 entryText.value = foundEntry ? foundEntry.text : '';
                 
-                // ▼追加: ラベルがtextareaと重ならないように
-                // (値があっても :not(:placeholder-shown) が効かない場合があるため)
                 const label = entryText.labels[0];
                 if (label) {
                     if (entryText.value) {
                         label.style.top = '-8px';
                         label.style.fontSize = '12px';
                     } else {
-                        // JSでのリセットは難しいので、CSSの :focus と :not(:placeholder-shown) に任せる
                         label.style.top = '';
                         label.style.fontSize = '';
                     }
@@ -620,18 +625,45 @@
                 toast.className = toast.className.replace('show', '');
             }, 3000);
         }
+        
+        // 9.5 (要約機能) 最初の1文抽出
+        function getFirstSentence(text) {
+            if (!text) return '';
+            const cleanedText = text.replace(/\n+/g, ' ');
+            const match = cleanedText.match(/[^。？！]+[。？！]/);
+            
+            if (match) {
+                let firstSentence = match[0];
+                if (firstSentence.length > 80) {
+                    firstSentence = firstSentence.substring(0, 80) + '...';
+                }
+                else if (cleanedText.length > firstSentence.length) {
+                    return firstSentence + '...';
+                }
+                return firstSentence;
+            }
+            if (cleanedText.length > 80) {
+                return cleanedText.substring(0, 80) + '...';
+            }
+            return cleanedText;
+        }
 
         // 10. 初期化処理
         
         // イベント委任 (p, edit-btn, delete-btn)
         entriesList.addEventListener('click', function(e) {
-            // クリックされた要素またはその親要素を探索
             const pTag = e.target.closest('p');
             const editBtn = e.target.closest('.edit-btn');
             const deleteBtn = e.target.closest('.delete-btn');
 
             if (pTag) {
-                pTag.classList.toggle('expanded');
+                const summaryText = pTag.dataset.summarytext;
+                const fullText = pTag.dataset.fulltext;
+                if (pTag.innerHTML === summaryText) {
+                    pTag.innerHTML = fullText; 
+                } else {
+                    pTag.innerHTML = summaryText; 
+                }
             }
             if (editBtn) {
                 const date = editBtn.dataset.date;
@@ -646,6 +678,70 @@
         saveButton.addEventListener('click', saveEntry);
         entryDate.addEventListener('change', loadEntryForDate);
         searchInput.addEventListener('input', loadEntries);
+
+        // ▼▼▼ エクスポート機能（強化版） ▼▼▼
+
+        // データを取得・整形する共通関数
+        function getExportData() {
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData || rawData === '[]') {
+                showToast('バックアップするデータがありません。', 'error');
+                return null;
+            }
+            // 読みやすく整形
+            return JSON.stringify(JSON.parse(rawData), null, 2);
+        }
+
+        // 1. クリップボードにコピー
+        copyExportButton.addEventListener('click', async function() {
+            try {
+                const dataToCopy = getExportData();
+                if (!dataToCopy) return;
+
+                await navigator.clipboard.writeText(dataToCopy);
+                showToast('全データをクリップボードにコピーしました！');
+                
+            } catch (error) {
+                console.error('コピーに失敗しました:', error);
+                showToast('クリップボードへのコピーに失敗しました。', 'error');
+            }
+        });
+
+        // 2. ファイルとしてダウンロード
+        downloadExportButton.addEventListener('click', function() {
+            try {
+                const dataToDownload = getExportData();
+                if (!dataToDownload) return;
+                
+                // Blobを作成
+                const blob = new Blob([dataToDownload], { type: 'application/json' });
+                
+                // ダウンロード用のリンクを動的に作成
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                // 今日の日付を取得してファイル名に
+                const todayStr = getToday_YYYYMMDD_JST();
+                a.href = url;
+                a.download = `diary-backup-${todayStr}.json`; // 例: diary-backup-2025-10-30.json
+                
+                // リンクをクリックさせてダウンロードを実行
+                document.body.appendChild(a);
+                a.click();
+                
+                // 後片付け
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('バックアップファイルをダウンロードしました。');
+
+            } catch (error) {
+                console.error('ダウンロード処理に失敗しました:', error);
+                showToast('ファイルのダウンロードに失敗しました。', 'error');
+            }
+        });
+        // ▲▲▲ エクスポート機能（強化版） ▲▲▲
+
 
         // 今日の日付(JST)を取得
         function getToday_YYYYMMDD_JST() {
@@ -662,7 +758,7 @@
         }
         
         entryDate.value = getToday_YYYYMMDD_JST();
-        loadEntryForDate(); // ページ読み込み時に実行
+        loadEntryForDate(); 
 
     </script>
 
