@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サイゼリヤ・メニューコンシェルジュ | バランスの取れた極上メニュー提案</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダーエリア -->
+        <header>
+            <div class="logo-badge">
+                <span>🍀 Saizeriya Concierge</span>
+            </div>
+            <h1>サイゼリヤ・メニューコンシェルジュ</h1>
+            <p class="subtitle">予算と人数に合わせて、美味しく栄養バランスの良い組み合わせをAI提案</p>
+        </header>
+
+        <!-- メインアプリグリッド -->
+        <div class="app-grid">
+            
+            <!-- 左カラム: 条件設定パネル -->
+            <aside class="glass-panel input-section animated-item">
+                <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>⚙️</span> 条件を設定する
+                </h2>
+
+                <!-- 予算設定 -->
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>総予算 (円)</span>
+                        <span class="value-badge" id="budget-badge">¥3,000</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="input-budget" min="500" max="20000" step="100" value="3000">
+                    </div>
+                </div>
+
+                <!-- 人数設定 -->
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>人数 (人)</span>
+                    </div>
+                    <div class="counter-control">
+                        <button type="button" class="counter-btn" id="btn-people-minus">—</button>
+                        <input type="number" class="counter-value" id="input-people" value="2" min="1" max="20" readonly>
+                        <button type="button" class="counter-btn" id="btn-people-plus">+</button>
+                    </div>
+                </div>
+
+                <!-- ドリンク設定 -->
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>ドリンクオプション</span>
+                    </div>
+                    <div class="segmented-control">
+                        <div class="segmented-option">
+                            <input type="radio" id="drink-none" name="drink-opt" value="none" checked>
+                            <label for="drink-none" class="segmented-label drink-none">
+                                <span class="icon">💧</span>
+                                <span>なし</span>
+                            </label>
+                        </div>
+                        <div class="segmented-option">
+                            <input type="radio" id="drink-bar" name="drink-opt" value="drinkbar">
+                            <label for="drink-bar" class="segmented-label drink-bar">
+                                <span class="icon">🥤</span>
+                                <span>ドリンクバー</span>
+                            </label>
+                        </div>
+                        <div class="segmented-option">
+                            <input type="radio" id="drink-alc" name="drink-opt" value="alcohol">
+                            <label for="drink-alc" class="segmented-label drink-alc">
+                                <span class="icon">🍷</span>
+                                <span>アルコール</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 詳細オプション (アコーディオン) -->
+                <div class="accordion">
+                    <div class="accordion-header" id="accordion-toggle">
+                        <span>🔍 詳細設定を表示</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <!-- ランチ設定 -->
+                        <div class="toggle-item">
+                            <span>ランチ限定メニューを含める</span>
+                            <label class="switch">
+                                <input type="checkbox" id="opt-lunch">
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- デザート設定 -->
+                        <div class="toggle-item">
+                            <span>デザートを含める</span>
+                            <label class="switch">
+                                <input type="checkbox" id="opt-dessert" checked>
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+
+                        <!-- 重複設定 -->
+                        <div class="toggle-item">
+                            <span>同じメニューの重複を許可する</span>
+                            <label class="switch">
+                                <input type="checkbox" id="opt-duplicate">
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提案実行ボタン -->
+                <button type="button" class="btn-submit" id="btn-generate">
+                    <span>✨</span> メニューを提案する
+                </button>
+            </aside>
+
+            <!-- 右カラム: 提案結果表示エリア -->
+            <main class="output-section">
+                
+                <!-- 未提案時の状態 (Empty State) -->
+                <div class="glass-panel empty-state animated-item" id="panel-empty">
+                    <div class="icon">🍕</div>
+                    <h3>あなたに最適なメニューを構築します</h3>
+                    <p>左側の条件を入力して「メニューを提案する」ボタンを押してください。極上のバランスコースを瞬時に計算します。</p>
+                </div>
+
+                <!-- 提案計算中の状態 (Loading State) -->
+                <div class="glass-panel loading-state" id="panel-loading">
+                    <div class="spinner">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="loading-text">組み合わせを検証中...</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">数千通りのメニューから最もバランスの良い構成を算出しています</p>
+                </div>
+
+                <!-- 結果表示ボード (Result Dashboard) -->
+                <div class="result-container" id="panel-result" style="display: none;">
+                    
+                    <!-- 統計ダッシュボード -->
+                    <div class="proposal-dashboard">
+                        <div class="stat-box animated-item">
+                            <span class="stat-label">合計金額</span>
+                            <span class="stat-value primary" id="val-total-cost">¥0</span>
+                        </div>
+                        <div class="stat-box animated-item" style="animation-delay: 0.05s;">
+                            <span class="stat-label">1人あたり</span>
+                            <span class="stat-value yellow" id="val-per-person">¥0</span>
+                        </div>
+                        <div class="stat-box animated-item" style="animation-delay: 0.1s;">
+                            <span class="stat-label">お釣り (残金)</span>
+                            <span class="stat-value accent" id="val-remaining">¥0</span>
+                        </div>
+                    </div>
+
+                    <!-- 予算メーター -->
+                    <div class="budget-meter-container glass-panel animated-item" style="animation-delay: 0.15s;">
+                        <div class="meter-header">
+                            <span>予算の使用率</span>
+                            <span id="text-budget-ratio">0%</span>
+                        </div>
+                        <div class="meter-bar-outer">
+                            <div class="meter-bar-inner" id="bar-budget-ratio" style="width: 0%;"></div>
+                        </div>
+                        <!-- アルコール時などの注意書き枠 -->
+                        <div class="alert-banner" id="banner-alcohol-notice" style="display: none;">
+                            <span>⚠️</span>
+                            <span>アルコールボトルをご注文の際は、グラスの数量をお間違えのないようご確認ください。</span>
+                        </div>
+                    </div>
+
+                    <!-- 栄養バランスチャート -->
+                    <div class="nutrition-container glass-panel animated-item" style="animation-delay: 0.20s;">
+                        <h3 class="nutrition-title">
+                            <span>📊</span> 栄養・構成バランス分析
+                        </h3>
+                        <div class="nutrition-grid">
+                            <!-- 炭水化物 -->
+                            <div class="nut-bar-group">
+                                <div class="nut-bar-label">
+                                    <span>主食・炭水化物</span>
+                                    <span id="pct-carb">0%</span>
+                                </div>
+                                <div class="nut-bar-outer">
+                                    <div class="nut-bar-inner carb" id="bar-carb" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            <!-- タンパク質 -->
+                            <div class="nut-bar-group">
+                                <div class="nut-bar-label">
+                                    <span>タンパク質・肉</span>
+                                    <span id="pct-protein">0%</span>
+                                </div>
+                                <div class="nut-bar-outer">
+                                    <div class="nut-bar-inner protein" id="bar-protein" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            <!-- ビタミン・野菜 -->
+                            <div class="nut-bar-group">
+                                <div class="nut-bar-label">
+                                    <span>ビタミン・野菜</span>
+                                    <span id="pct-veg">0%</span>
+                                </div>
+                                <div class="nut-bar-outer">
+                                    <div class="nut-bar-inner vegetable" id="bar-veg" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            <!-- デザート等 -->
+                            <div class="nut-bar-group">
+                                <div class="nut-bar-label">
+                                    <span>その他・デザート</span>
+                                    <span id="pct-other">0%</span>
+                                </div>
+                                <div class="nut-bar-outer">
+                                    <div class="nut-bar-inner other" id="bar-other" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nutrition-msg" id="text-balance-msg">
+                            バランスを分析中...
+                        </div>
+                    </div>
+
+                    <!-- 提案メニューカードリスト -->
+                    <div class="glass-panel animated-item" style="animation-delay: 0.25s;">
+                        <h3 class="menu-list-title">
+                            <span>🍽️</span> 提案されたコースメニュー
+                        </h3>
+                        <div class="menu-list-container" id="menu-cards-list">
+                            <!-- JSによって動的にカードが挿入される -->
+                        </div>
+                        
+                        <!-- ユーティリティアクションボタン -->
+                        <div class="proposal-actions">
+                            <button type="button" class="btn-util" id="btn-shuffle-all">
+                                <span>🔄</span> 全体を再シャッフル
+                            </button>
+                            <button type="button" class="btn-util primary-outline" id="btn-copy-order">
+                                <span>📋</span> 注文リストをコピー
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- コピー完了通知トースト -->
+    <div class="toast-notification" id="toast-notif">
+        <span>✅</span> 注文リストをクリップボードにコピーしました！
+    </div>
+
+    <!-- JSファイルのインポート -->
+    <script src="app.js"></script>
+</body>
+</html>
